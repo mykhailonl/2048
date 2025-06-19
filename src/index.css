@@ -1,1 +1,94 @@
 @import "tailwindcss";
+
+:root {
+  /* Game layout */
+  --game-bg: #faf8ef;
+  --board-bg: #9C8A7A;
+  --board-border: #8C7969;
+  --cell-empty: #BDAC97;
+
+  /* Tile colors */
+  --tile-2: #eee4da;
+  --tile-2-text: #776e65;
+  --tile-4: #ede0c8;
+  --tile-4-text: #776e65;
+  --tile-8: #f2b179;
+  --tile-8-text: #f9f6f2;
+  --tile-16: #f59563;
+  --tile-16-text: #f9f6f2;
+  --tile-32: #f67c5f;
+  --tile-32-text: #f9f6f2;
+  --tile-64: #f65e3b;
+  --tile-64-text: #f9f6f2;
+  --tile-128: #edcf72;
+  --tile-128-text: #f9f6f2;
+  --tile-256: #edcc61;
+  --tile-256-text: #f9f6f2;
+  --tile-512: #edc850;
+  --tile-512-text: #f9f6f2;
+  --tile-1024: #edc53f;
+  --tile-1024-text: #f9f6f2;
+  --tile-2048: #edc22e;
+  --tile-2048-text: #f9f6f2;
+}
+
+/* Placeholder for dark theme, add later */
+.dark {
+
+}
+
+@layer utilities {
+  /* Game layout */
+  .bg-game { background-color: var(--game-bg); }
+  .bg-board { background-color: var(--board-bg); }
+  .border-board { border-color: var(--board-border); }
+  .bg-cell-empty { background-color: var(--cell-empty); }
+
+  /* Tile backgrounds */
+  .bg-tile-2 { background-color: var(--tile-2); }
+  .bg-tile-4 { background-color: var(--tile-4); }
+  .bg-tile-8 { background-color: var(--tile-8); }
+  .bg-tile-16 { background-color: var(--tile-16); }
+  .bg-tile-32 { background-color: var(--tile-32); }
+  .bg-tile-64 { background-color: var(--tile-64); }
+  .bg-tile-128 { background-color: var(--tile-128); }
+  .bg-tile-256 { background-color: var(--tile-256); }
+  .bg-tile-512 { background-color: var(--tile-512); }
+  .bg-tile-1024 { background-color: var(--tile-1024); }
+  .bg-tile-2048 { background-color: var(--tile-2048); }
+
+  /* Tile text colors */
+  .text-tile-2 { color: var(--tile-2-text); }
+  .text-tile-4 { color: var(--tile-4-text); }
+  .text-tile-8 { color: var(--tile-8-text); }
+  .text-tile-16 { color: var(--tile-16-text); }
+  .text-tile-32 { color: var(--tile-32-text); }
+  .text-tile-64 { color: var(--tile-64-text); }
+  .text-tile-128 { color: var(--tile-128-text); }
+  .text-tile-256 { color: var(--tile-256-text); }
+  .text-tile-512 { color: var(--tile-512-text); }
+  .text-tile-1024 { color: var(--tile-1024-text); }
+  .text-tile-2048 { color: var(--tile-2048-text); }
+
+  .game-board-container {
+    container-type: size;
+    width: clamp(310px, 70vw, 490px);
+    height: clamp(310px, 70vw, 490px);
+  }
+
+  .text-tile-lg { font-size: 1.125rem; }
+  .text-tile-md { font-size: 1rem; }
+  .text-tile-sm { font-size: 0.875rem; }
+
+  @container (width > 400px) {
+    .text-tile-lg { font-size: 1.875rem; }
+    .text-tile-md { font-size: 1.5rem; }
+    .text-tile-sm { font-size: 1.25rem; }
+  }
+
+  @container (width > 350px) and (width <= 400px) {
+    .text-tile-lg { font-size: 1.5rem; }
+    .text-tile-md { font-size: 1.25rem; }
+    .text-tile-sm { font-size: 1rem; }
+  }
+}
