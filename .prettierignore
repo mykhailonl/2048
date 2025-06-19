@@ -1,0 +1,8 @@
+# Build outputs
+dist/
+build/
+node_modules/
+
+# Config files that shouldn't be formatted
+package-lock.json
+*.config.js
