@@ -5,13 +5,23 @@ import {
   useReducer,
 } from 'react'
 
-interface GameState {
-  board: (number | null)[]
-  score: number
-  status: 'idle' | 'playing' | 'win' | 'lose'
-}
+import type { CellValue, Direction } from '../types/BoardTypes.ts'
+import {
+  addNewTile,
+  boardsEqual,
+  getStatus,
+  initializeGame,
+  moveBoardInDirection,
+} from '../utils/gameLogic.ts'
 
-type Direction = 'up' | 'down' | 'left' | 'right'
+export type GameBoard = CellValue[]
+export type GameStatus = 'idle' | 'playing' | 'win' | 'lose'
+
+export interface GameState {
+  board: GameBoard
+  score: number
+  status: GameStatus
+}
 
 type GameAction =
   | {
@@ -25,28 +35,7 @@ interface GameContextType {
   dispatch: Dispatch<GameAction>
 }
 
-const initialState: GameState = {
-  board: [
-    2,
-    null,
-    null,
-    4,
-    null,
-    null,
-    null,
-    null,
-    null,
-    null,
-    null,
-    null,
-    null,
-    null,
-    null,
-    null,
-  ],
-  score: 0,
-  status: 'playing',
-}
+const initialState: GameState = initializeGame()
 
 export const GameContext = createContext<GameContextType | undefined>(undefined)
 
@@ -56,8 +45,25 @@ const gameReducer = (state: GameState, action: GameAction): GameState => {
       return { ...initialState }
     case 'RESTART':
       return { ...initialState }
-    case 'MOVE':
-      return state
+    case 'MOVE': {
+      const { board: newBoard, earnedScore } = moveBoardInDirection(
+        state.board,
+        action.direction
+      )
+
+      if (boardsEqual(state.board, newBoard)) {
+        return state
+      }
+
+      const boardWithNewTile = addNewTile(newBoard)
+
+      return {
+        ...state,
+        board: boardWithNewTile,
+        score: state.score + earnedScore,
+        status: getStatus(boardWithNewTile),
+      }
+    }
     default:
       return state
   }

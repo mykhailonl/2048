@@ -1,3 +1,5 @@
+import type { CellValue } from '../types/BoardTypes.ts'
+
 const tileStylesMap = {
   2: 'bg-tile-2 text-tile-2 text-tile-lg',
   4: 'bg-tile-4 text-tile-4 text-tile-lg',
@@ -12,7 +14,7 @@ const tileStylesMap = {
   2048: 'bg-tile-2048 text-tile-2048 text-tile-sm',
 } as const
 
-export const getTileStyle = (value: number | null) => {
+export const getTileStyle = (value: CellValue) => {
   if (!value) return 'bg-cell-empty'
 
   return (
