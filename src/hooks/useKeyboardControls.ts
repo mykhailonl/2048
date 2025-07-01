@@ -4,7 +4,7 @@ import type { Direction } from '../types/TileTypes.ts'
 
 import { useGameContext } from './useGameContext'
 
-export const useGameControls = () => {
+export const useKeyboardControls = () => {
   const { dispatch } = useGameContext()
 
   useEffect(() => {
@@ -31,14 +31,4 @@ export const useGameControls = () => {
     window.addEventListener('keydown', handleKeyPress)
     return () => window.removeEventListener('keydown', handleKeyPress)
   }, [dispatch])
-
-  const restartGame = () => {
-    dispatch({ type: 'RESTART' })
-  }
-
-  const newGame = () => {
-    dispatch({ type: 'NEW_GAME' })
-  }
-
-  return { restartGame, newGame }
 }
