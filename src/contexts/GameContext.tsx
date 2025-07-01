@@ -30,7 +30,6 @@ type GameAction =
       type: 'NEW_GAME'
     }
   | { type: 'MOVE'; direction: Direction }
-  | { type: 'RESTART' }
   | { type: 'QUEUE_COMMAND'; direction: Direction }
   | { type: 'START_PROCESSING' }
   | { type: 'FINISH_PROCESSING' }
@@ -47,17 +46,7 @@ export const GameContext = createContext<GameContextType | undefined>(undefined)
 const gameReducer = (state: GameState, action: GameAction): GameState => {
   switch (action.type) {
     case 'NEW_GAME':
-      return {
-        ...initialState,
-        commandQueue: [],
-        isProcessingCommand: false,
-      }
-    case 'RESTART':
-      return {
-        ...initialState,
-        commandQueue: [],
-        isProcessingCommand: false,
-      }
+      return initializeGame()
     case 'QUEUE_COMMAND': {
       // restricting command queue to max 3 commands to avoid bad ux exp
       if (state.commandQueue.length >= 3) {
