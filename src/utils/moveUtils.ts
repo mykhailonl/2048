@@ -1,147 +1,122 @@
-import type {
-  BoardRow,
-  CellValue,
-  Direction,
-  MoveReducer,
-} from '../types/BoardTypes.ts'
+import type { Direction, MoveResult, Tile } from '../types/TileTypes'
+
+import { generateTileId } from './tileUtils'
 
 /**
- * Performs a left move for a single row/column in 2048 game
+ * Performs a left move for a single row/column of tiles in 2048 game
  *
  * Algorithm:
- * 1. Removes empty cells (null)
- * 2. Merges identical adjacent numbers (2+2=4)
- * 3. Each number can participate in only one merge per move
- * 4. Fills the result to 4 elements with empty cells
- * 5. Calculates score from merged tiles (merged value = earned points)
+ * 1. Processes tiles in order (already sorted, no nulls)
+ * 2. Merges identical adjacent tiles (2+2=4)
+ * 3. Each tile can participate in only one merge per move
+ * 4. Creates new tiles with new IDs for merges
+ * 5. Updates coordinates for moved/merged tiles
+ * 6. Calculates score from merged tiles
  *
- * @param boardRow - Array of 4 elements (board row or column)
- * @returns Object with transformed array and earned score
- *
- * @example
- * moveLineLeft([2, null, 2, 4]) => { row: [4, 4, null, null], earnedScore: 4 }
- * moveLineLeft([2, 2, 4, 4])    => { row: [4, 8, null, null], earnedScore: 12 }
- * moveLineLeft([2, 4, 8, 16])   => { row: [2, 4, 8, 16], earnedScore: 0 }
+ * @param lineTiles - Array of tiles in a line (row or column)
+ * @param fixedCoordinate - The coordinate that stays the same (y for horizontal, x for vertical)
+ * @param isHorizontal - Whether this is a horizontal movement (affects x coordinate)
+ * @returns Object with transformed tiles and earned score
  */
-export const moveLineLeft = (
-  boardRow: CellValue[]
-): {
-  row: BoardRow
-  earnedScore: number
-} => {
-  const result = boardRow.reduce<MoveReducer>(
-    (acc, curr) => {
-      if (curr === null) {
-        return acc
+const moveTilesLeft = (
+  lineTiles: Tile[],
+  fixedCoordinate: number,
+  isHorizontal: boolean
+): MoveResult => {
+  const resultTiles: Tile[] = []
+  let earnedScore = 0
+  let currentPosition = 0
+  let i = 0
+
+  while (i < lineTiles.length) {
+    const currentTile = lineTiles[i]
+
+    if (
+      i + 1 < lineTiles.length &&
+      lineTiles[i + 1].value === currentTile.value
+    ) {
+      const mergedValue = currentTile.value * 2
+      earnedScore += mergedValue
+
+      const newTile: Tile = {
+        id: generateTileId(),
+        value: mergedValue,
+        x: isHorizontal ? currentPosition : fixedCoordinate,
+        y: isHorizontal ? fixedCoordinate : currentPosition,
       }
 
-      if (acc.result.length === 0) {
-        return {
-          result: [...acc.result, curr],
-          lastValue: curr,
-          canMerge: true,
-          earnedScore: acc.earnedScore,
-        }
+      resultTiles.push(newTile)
+      i += 2
+    } else {
+      const movedTile: Tile = {
+        ...currentTile,
+        x: isHorizontal ? currentPosition : fixedCoordinate,
+        y: isHorizontal ? fixedCoordinate : currentPosition,
       }
 
-      if (curr === acc.lastValue && acc.canMerge) {
-        const lastValue = acc.result[acc.result.length - 1]
-        const resultWithoutLast = acc.result.slice(0, -1)
-        const newValue = lastValue! + curr
-
-        return {
-          result: [...resultWithoutLast, newValue],
-          lastValue: newValue,
-          canMerge: false,
-          earnedScore: acc.earnedScore + newValue,
-        }
-      }
-
-      return {
-        result: [...acc.result, curr],
-        lastValue: curr,
-        canMerge: true,
-        earnedScore: acc.earnedScore,
-      }
-    },
-    {
-      result: [],
-      lastValue: null,
-      canMerge: true,
-      earnedScore: 0,
+      resultTiles.push(movedTile)
+      i += 1
     }
-  )
 
-  return {
-    row: [
-      ...result.result,
-      ...Array(4 - result.result.length).fill(null),
-    ] as BoardRow,
-    earnedScore: result.earnedScore,
+    currentPosition += 1
   }
+
+  return { tiles: resultTiles, earnedScore }
 }
 
 /**
  * Universal move function for any direction
  *
- * Uses moveLineLeft as base logic, applying transformations:
- * - left/up: passes array as is
- * - right/down: reverses array, applies moveLineLeft, reverses back
+ * Uses moveTilesLeft as base logic, applying transformations:
+ * - left/up: processes tiles as is
+ * - right/down: reverses tiles order, applies moveTilesLeft, adjusts coordinates back
  *
- * @param row - Array of 4 elements to process
+ * @param lineTiles - Array of tiles to process
  * @param direction - Move direction ('left' | 'right' | 'up' | 'down')
- * @returns Object with result of movement in specified direction and earned score
- *
- * @example
- * moveLineInDirection([null, 2, 2, null], 'left')  => { row: [4, null, null, null], earnedScore: 4 }
- * moveLineInDirection([null, 2, 2, null], 'right') => { row: [null, null, null, 4], earnedScore: 4 }
+ * @param fixedCoordinate - The coordinate that stays the same during movement
+ * @returns Object with result tiles and earned score
  */
-export const moveLineInDirection = (
-  row: CellValue[],
-  direction: Direction
-): { row: BoardRow; earnedScore: number } => {
+export const moveTilesInLine = (
+  lineTiles: Tile[],
+  direction: Direction,
+  fixedCoordinate: number
+): MoveResult => {
   switch (direction) {
     case 'left': {
-      const { row: result, earnedScore } = moveLineLeft(row)
-
-      return {
-        row: result as BoardRow,
-        earnedScore,
-      }
+      return moveTilesLeft(lineTiles, fixedCoordinate, true)
     }
+
     case 'right': {
-      const reversed = [...row].reverse()
-      const { row: result, earnedScore } = moveLineLeft(reversed)
+      const reversed = [...lineTiles].reverse()
+      const result = moveTilesLeft(reversed, fixedCoordinate, true)
 
       return {
-        row: result.reverse() as BoardRow,
-        earnedScore,
+        tiles: result.tiles.map(tile => ({
+          ...tile,
+          x: 3 - tile.x,
+        })),
+        earnedScore: result.earnedScore,
       }
     }
 
     case 'up': {
-      const { row: result, earnedScore } = moveLineLeft(row)
-
-      return {
-        row: result as BoardRow,
-        earnedScore,
-      }
+      return moveTilesLeft(lineTiles, fixedCoordinate, false)
     }
 
     case 'down': {
-      const reversed = [...row].reverse()
-      const { row: result, earnedScore } = moveLineLeft(reversed)
+      const reversed = [...lineTiles].reverse()
+      const result = moveTilesLeft(reversed, fixedCoordinate, false)
 
       return {
-        row: result.reverse() as BoardRow,
-        earnedScore,
+        tiles: result.tiles.map(tile => ({
+          ...tile,
+          y: 3 - tile.y,
+        })),
+        earnedScore: result.earnedScore,
       }
     }
 
     default:
-      return {
-        row: row as BoardRow,
-        earnedScore: 0,
-      }
+      return { tiles: lineTiles, earnedScore: 0 }
   }
 }

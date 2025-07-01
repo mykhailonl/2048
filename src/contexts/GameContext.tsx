@@ -2,25 +2,27 @@ import {
   createContext,
   type Dispatch,
   type PropsWithChildren,
+  useEffect,
   useReducer,
 } from 'react'
 
-import type { CellValue, Direction } from '../types/BoardTypes.ts'
+import type { Direction, Tile } from '../types/TileTypes.ts'
 import {
   addNewTile,
-  boardsEqual,
   getStatus,
   initializeGame,
-  moveBoardInDirection,
+  moveTilesInDirection,
+  tilesEqual,
 } from '../utils/gameLogic.ts'
 
-export type GameBoard = CellValue[]
 export type GameStatus = 'idle' | 'playing' | 'win' | 'lose'
 
 export interface GameState {
-  board: GameBoard
+  tiles: Tile[]
   score: number
   status: GameStatus
+  commandQueue: Direction[]
+  isProcessingCommand: boolean
 }
 
 type GameAction =
@@ -29,6 +31,9 @@ type GameAction =
     }
   | { type: 'MOVE'; direction: Direction }
   | { type: 'RESTART' }
+  | { type: 'QUEUE_COMMAND'; direction: Direction }
+  | { type: 'START_PROCESSING' }
+  | { type: 'FINISH_PROCESSING' }
 
 interface GameContextType {
   state: GameState
@@ -42,26 +47,61 @@ export const GameContext = createContext<GameContextType | undefined>(undefined)
 const gameReducer = (state: GameState, action: GameAction): GameState => {
   switch (action.type) {
     case 'NEW_GAME':
-      return { ...initialState }
+      return {
+        ...initialState,
+        commandQueue: [],
+        isProcessingCommand: false,
+      }
     case 'RESTART':
-      return { ...initialState }
-    case 'MOVE': {
-      const { board: newBoard, earnedScore } = moveBoardInDirection(
-        state.board,
-        action.direction
-      )
-
-      if (boardsEqual(state.board, newBoard)) {
+      return {
+        ...initialState,
+        commandQueue: [],
+        isProcessingCommand: false,
+      }
+    case 'QUEUE_COMMAND': {
+      // restricting command queue to max 3 commands to avoid bad ux exp
+      if (state.commandQueue.length >= 3) {
         return state
       }
 
-      const boardWithNewTile = addNewTile(newBoard)
+      return {
+        ...state,
+        commandQueue: [...state.commandQueue, action.direction],
+      }
+    }
+
+    case 'START_PROCESSING': {
+      return {
+        ...state,
+        isProcessingCommand: true,
+      }
+    }
+
+    case 'FINISH_PROCESSING': {
+      return {
+        ...state,
+        commandQueue: state.commandQueue.slice(1),
+        isProcessingCommand: false,
+      }
+    }
+
+    case 'MOVE': {
+      const { tiles: newTiles, earnedScore } = moveTilesInDirection(
+        state.tiles,
+        action.direction
+      )
+
+      if (tilesEqual(state.tiles, newTiles)) {
+        return state
+      }
+
+      const tilesWithNewTile = addNewTile(newTiles)
 
       return {
         ...state,
-        board: boardWithNewTile,
+        tiles: tilesWithNewTile,
         score: state.score + earnedScore,
-        status: getStatus(boardWithNewTile),
+        status: getStatus(tilesWithNewTile),
       }
     }
     default:
@@ -71,6 +111,20 @@ const gameReducer = (state: GameState, action: GameAction): GameState => {
 
 export const GameProvider = ({ children }: PropsWithChildren) => {
   const [state, dispatch] = useReducer(gameReducer, initialState)
+
+  useEffect(() => {
+    if (state.commandQueue.length > 0 && !state.isProcessingCommand) {
+      const nextDirection = state.commandQueue[0]
+
+      dispatch({ type: 'START_PROCESSING' })
+
+      dispatch({ type: 'MOVE', direction: nextDirection })
+
+      setTimeout(() => {
+        dispatch({ type: 'FINISH_PROCESSING' })
+      }, 150)
+    }
+  }, [state.commandQueue, state.isProcessingCommand])
 
   return <GameContext value={{ state, dispatch }}>{children}</GameContext>
 }

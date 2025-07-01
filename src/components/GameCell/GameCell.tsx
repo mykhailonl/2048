@@ -1,20 +1,31 @@
 import cn from 'classnames'
-import { useMemo } from 'react'
+import { motion } from 'framer-motion'
 
+import type { Tile } from '../../types/TileTypes.ts'
 import { getTileStyle } from '../../utils/tileStyles.ts'
 
 type GameCellProps = {
-  value: number | null
+  tile: Tile
 }
 
-export const GameCell = ({ value }: GameCellProps) => {
-  const tileStyle = useMemo(() => getTileStyle(value), [value])
-
+export const GameCell = ({ tile }: GameCellProps) => {
   return (
-    <div className={cn(tileStyle, 'aspect-square rounded-lg font-bold')}>
+    <motion.div
+      layoutId={tile.id}
+      initial={{ scale: 0 }}
+      animate={{ scale: 1 }}
+      exit={{ scale: 0 }}
+      className={cn(getTileStyle(tile), 'aspect-square rounded-lg font-bold')}
+      transition={{
+        type: 'spring',
+        damping: 50,
+        stiffness: 800,
+        restDelta: 0.5,
+      }}
+    >
       <div className="w-full h-full flex items-center justify-center">
-        {value}
+        {tile.value}
       </div>
-    </div>
+    </motion.div>
   )
 }

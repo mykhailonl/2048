@@ -1,119 +1,98 @@
-import type {
-  GameBoard,
-  GameState,
-  GameStatus,
-} from '../contexts/GameContext.tsx'
-import type { ColIndex, Direction, RowIndex } from '../types/BoardTypes.ts'
+import type { GameState, GameStatus } from '../contexts/GameContext.tsx'
+import type { Direction, Tile } from '../types/TileTypes.ts'
 
-import { coordsToIndex, getColumn, getRow } from './boardUtils.ts'
-import { moveLineInDirection } from './moveUtils.ts'
+import { moveTilesInLine } from './moveUtils.ts'
+import {
+  findTileAt,
+  generateTileId,
+  getEmptyPositions,
+  getTilesInColumn,
+  getTilesInRow,
+} from './tileUtils.ts'
 
-/**
- * Moves entire game board in specified direction
- *
- * Algorithm:
- * 1. For horizontal moves: processes each row using moveLineInDirection
- * 2. For vertical moves: processes each column using moveLineInDirection
- * 3. Accumulates earned score from all processed lines
- * 4. Returns transformed board with total earned score
- *
- * @param board - 16-element game board array
- * @param direction - Move direction ('left' | 'right' | 'up' | 'down')
- * @returns Object with new board state and total earned score from the move
- *
- * @example
- * // Board with mergeable tiles in multiple rows
- * moveBoardInDirection(board, 'left') => { board: newBoard, earnedScore: 24 }
- */
-export const moveBoardInDirection = (
-  board: GameBoard,
+export const moveTilesInDirection = (
+  tiles: Tile[],
   direction: Direction
-): { board: GameBoard; earnedScore: number } => {
-  const newBoard = [...board]
+): { tiles: Tile[]; earnedScore: number } => {
+  const newTiles: Tile[] = []
   let totalEarnedScore = 0
 
   if (direction === 'left' || direction === 'right') {
     for (let rowIndex = 0; rowIndex < 4; rowIndex++) {
-      const targetRow = getRow(board, rowIndex as RowIndex)
-      const { row: rowResult, earnedScore } = moveLineInDirection(
-        targetRow,
-        direction
+      const rowTiles = getTilesInRow(tiles, rowIndex)
+      const { tiles: rowResult, earnedScore } = moveTilesInLine(
+        rowTiles,
+        direction,
+        rowIndex
       )
 
       totalEarnedScore += earnedScore
-
-      rowResult.forEach((value, colIndex) => {
-        const index = coordsToIndex(colIndex as ColIndex, rowIndex as RowIndex)
-        if (index !== null) newBoard[index] = value
-      })
+      newTiles.push(...rowResult)
     }
   }
 
   if (direction === 'up' || direction === 'down') {
     for (let colIndex = 0; colIndex < 4; colIndex++) {
-      const targetCol = getColumn(board, colIndex as ColIndex)
-      const { row: colResult, earnedScore } = moveLineInDirection(
-        targetCol,
-        direction
+      const colTiles = getTilesInColumn(tiles, colIndex)
+      const { tiles: colResult, earnedScore } = moveTilesInLine(
+        colTiles,
+        direction,
+        colIndex
       )
 
       totalEarnedScore += earnedScore
-
-      colResult.forEach((value, rowIndex) => {
-        const index = coordsToIndex(colIndex as ColIndex, rowIndex as RowIndex)
-        if (index !== null) newBoard[index] = value
-      })
+      newTiles.push(...colResult)
     }
   }
 
-  return { board: newBoard, earnedScore: totalEarnedScore }
+  return { tiles: newTiles, earnedScore: totalEarnedScore }
 }
 
-export const boardsEqual = (board1: GameBoard, board2: GameBoard): boolean => {
-  return board1.every((cell, index) => cell === board2[index])
+export const tilesEqual = (tiles1: Tile[], tiles2: Tile[]): boolean => {
+  if (tiles1.length !== tiles2.length) return false
+
+  for (let x = 0; x < 4; x++) {
+    for (let y = 0; y < 4; y++) {
+      const tile1 = findTileAt(tiles1, x, y)
+      const tile2 = findTileAt(tiles2, x, y)
+
+      if (tile1?.value !== tile2?.value) return false
+    }
+  }
+
+  return true
 }
 
-/**
- * Checks if the player has any available moves on the current board
- *
- * Algorithm:
- * 1. If there are empty cells (null), moves are available
- * 2. If no empty cells, simulates moves in all 4 directions
- * 3. Compares original board with result of each simulated move
- * 4. Returns true if any direction produces a different board
- *
- * @param board - 16-element game board array to check
- * @returns Boolean indicating whether any moves are possible
- *
- * @example
- * hasAvailableMoves([2,4,8,16, null,2,4,8, ...]) => true  // has empty cell
- * hasAvailableMoves([2,4,2,4, 4,2,4,2, ...])     => true  // can merge 2+2
- * hasAvailableMoves([2,4,8,16, 4,8,16,32, ...])  => false // no moves possible
- */
-export const hasAvailableMoves = (board: GameBoard): boolean => {
-  if (board.some(cell => cell === null)) return true
+export const hasAvailableMoves = (tiles: Tile[]): boolean => {
+  const emptyPositions = getEmptyPositions(tiles)
 
-  const directions: Direction[] = ['down', 'up', 'right', 'left']
+  if (emptyPositions.length > 0) return true
 
-  return directions.some(direction => {
-    const { board: newBoard } = moveBoardInDirection(board, direction)
+  for (const tile of tiles) {
+    const rightNeighbor = findTileAt(tiles, tile.x + 1, tile.y)
 
-    return !boardsEqual(board, newBoard)
-  })
+    if (rightNeighbor && rightNeighbor.value === tile.value) return true
+
+    const bottomNeighbor = findTileAt(tiles, tile.x, tile.y + 1)
+
+    if (bottomNeighbor && bottomNeighbor.value === tile.value) return true
+  }
+
+  return false
 }
 
-export const checkWinCondition = (board: GameBoard): boolean => {
-  return board.some(cell => cell === 2048)
+export const checkWinCondition = (tiles: Tile[]): boolean => {
+  return tiles.some(tile => tile.value === 2048)
 }
 
-export const checkLoseCondition = (board: GameBoard): boolean => {
-  return !hasAvailableMoves(board)
+export const checkLoseCondition = (tiles: Tile[]): boolean => {
+  return !hasAvailableMoves(tiles)
 }
 
-export const getStatus = (board: GameBoard): GameStatus => {
-  if (checkWinCondition(board)) return 'win'
+export const getStatus = (tiles: Tile[]): GameStatus => {
+  if (checkWinCondition(tiles)) return 'win'
 
-  if (checkLoseCondition(board)) return 'lose'
+  if (checkLoseCondition(tiles)) return 'lose'
 
   return 'playing'
 }
@@ -125,34 +104,38 @@ export const generateNewTile = (): number => {
   return Math.random() < 0.9 ? 2 : 4
 }
 
-export const addNewTile = (board: GameBoard) => {
-  const emptyIndices = board
-    .map((cell, index) => (cell === null ? index : null))
-    .filter(index => index !== null) as number[]
+export const addNewTile = (tiles: Tile[]): Tile[] => {
+  const emptyPositions = getEmptyPositions(tiles)
 
-  if (emptyIndices.length === 0) {
-    return board
+  if (emptyPositions.length === 0) {
+    return tiles
   }
 
-  const randomIndex =
-    emptyIndices[Math.floor(Math.random() * emptyIndices.length)]
+  const randomPosition =
+    emptyPositions[Math.floor(Math.random() * emptyPositions.length)]
 
-  const newBoard = [...board]
-
-  newBoard[randomIndex] = generateNewTile()
-
-  return newBoard
+  return [
+    ...tiles,
+    {
+      id: generateTileId(),
+      value: generateNewTile(),
+      x: randomPosition.x,
+      y: randomPosition.y,
+    },
+  ]
 }
 
 export const initializeGame = (): GameState => {
-  let board: GameBoard = Array(16).fill(null)
+  let tiles: Tile[] = []
 
-  board = addNewTile(board)
-  board = addNewTile(board)
+  tiles = addNewTile(tiles)
+  tiles = addNewTile(tiles)
 
   return {
-    board,
+    tiles,
     score: 0,
     status: 'playing',
+    commandQueue: [],
+    isProcessingCommand: false,
   }
 }

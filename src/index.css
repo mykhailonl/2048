@@ -74,6 +74,9 @@
     container-type: size;
     width: clamp(310px, 70vw, 490px);
     height: clamp(310px, 70vw, 490px);
+
+    --cell-size: calc((100% - 3rem - 3 * 0.5rem) / 4);
+    --gap-size: 0.5rem;
   }
 
   .text-tile-lg { font-size: 1.125rem; }

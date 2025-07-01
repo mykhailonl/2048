@@ -1,6 +1,6 @@
 import { useEffect } from 'react'
 
-import type { Direction } from '../types/BoardTypes'
+import type { Direction } from '../types/TileTypes.ts'
 
 import { useGameContext } from './useGameContext'
 
@@ -24,7 +24,7 @@ export const useGameControls = () => {
 
       const direction = keyToDirection[event.key]
       if (direction) {
-        dispatch({ type: 'MOVE', direction })
+        dispatch({ type: 'QUEUE_COMMAND', direction })
       }
     }
 
