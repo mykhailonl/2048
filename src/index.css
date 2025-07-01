@@ -3,6 +3,7 @@
 :root {
   /* Game layout */
   --game-bg: #faf8ef;
+  --text-color: #faf8ef;
   --board-bg: #9C8A7A;
   --board-border: #8C7969;
   --cell-empty: #BDAC97;
@@ -41,6 +42,7 @@
   /* Game layout */
   .bg-game { background-color: var(--game-bg); }
   .bg-board { background-color: var(--board-bg); }
+  .text-color { color: var(--text-color); }
   .border-board { border-color: var(--board-border); }
   .bg-cell-empty { background-color: var(--cell-empty); }
 

@@ -15,7 +15,7 @@ export const GameScore = () => {
   }, [state.score, bestScore, setBestScore])
 
   return (
-    <div className="flex gap-4 items-center justify-center">
+    <div className="flex gap-4 items-center w-full md:justify-center">
       <ScoreCard fieldName="Score" fieldValue={state.score} mainCard={true} />
 
       <ScoreCard fieldName="Best" fieldValue={bestScore} />

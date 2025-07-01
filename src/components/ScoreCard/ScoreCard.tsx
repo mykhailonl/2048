@@ -20,18 +20,18 @@ export const ScoreCard = ({
   return (
     <div
       className={cn(
-        'flex flex-col px-4 rounded-xl py-2 font-bold border-2 border-[#E9E7D9] items-center',
+        'flex px-4 rounded-xl py-2 border-2 border-[#E9E7D9] items-center md:flex-col justify-between grow md:grow-0',
         mainCard ? 'bg-[#E9E7D9]' : 'bg-game',
         styles?.containerStyles
       )}
     >
-      <span className={cn('text-[#988876]', styles?.fieldNameStyles)}>
+      <p className={cn('text-[#988876]', styles?.fieldNameStyles)}>
         {fieldName}
-      </span>
+      </p>
 
-      <span className={cn('text-[#988876]', styles?.fieldValueStyles)}>
+      <p className={cn('text-[#988876] font-bold', styles?.fieldValueStyles)}>
         {fieldValue}
-      </span>
+      </p>
     </div>
   )
 }

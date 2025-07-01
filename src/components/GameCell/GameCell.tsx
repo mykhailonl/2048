@@ -15,7 +15,10 @@ export const GameCell = ({ tile }: GameCellProps) => {
       initial={{ scale: 0 }}
       animate={{ scale: 1 }}
       exit={{ scale: 0 }}
-      className={cn(getTileStyle(tile), 'aspect-square rounded-lg font-bold')}
+      className={cn(
+        getTileStyle(tile),
+        'aspect-square rounded-lg font-bold shadow-xl'
+      )}
       transition={{
         type: 'spring',
         damping: 50,
