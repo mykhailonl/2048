@@ -9,5 +9,9 @@ export const useGameActions = () => {
     dispatch({ type: 'NEW_GAME' })
   }, [dispatch])
 
-  return { newGame }
+  const undo = useCallback(() => {
+    dispatch({ type: 'UNDO' })
+  }, [dispatch])
+
+  return { newGame, undo }
 }

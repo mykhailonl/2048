@@ -26,6 +26,7 @@ const moveTilesLeft = (
   const resultTiles: Tile[] = []
   let earnedScore = 0
   let currentPosition = 0
+  let earnedUndoes = 0
   let i = 0
 
   while (i < lineTiles.length) {
@@ -37,6 +38,8 @@ const moveTilesLeft = (
     ) {
       const mergedValue = currentTile.value * 2
       earnedScore += mergedValue
+
+      if (mergedValue === 128) earnedUndoes++
 
       const newTile: Tile = {
         id: generateTileId(),
@@ -61,7 +64,7 @@ const moveTilesLeft = (
     currentPosition += 1
   }
 
-  return { tiles: resultTiles, earnedScore }
+  return { tiles: resultTiles, earnedScore, earnedUndoes }
 }
 
 /**
@@ -96,6 +99,7 @@ export const moveTilesInLine = (
           x: 3 - tile.x,
         })),
         earnedScore: result.earnedScore,
+        earnedUndoes: result.earnedUndoes,
       }
     }
 
@@ -113,10 +117,11 @@ export const moveTilesInLine = (
           y: 3 - tile.y,
         })),
         earnedScore: result.earnedScore,
+        earnedUndoes: result.earnedUndoes,
       }
     }
 
     default:
-      return { tiles: lineTiles, earnedScore: 0 }
+      return { tiles: lineTiles, earnedScore: 0, earnedUndoes: 0 }
   }
 }

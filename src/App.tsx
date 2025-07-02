@@ -1,4 +1,5 @@
 import { GameBoard } from './components/GameBoard'
+import { GameFooter } from './components/GameFooter'
 import { GameScore } from './components/GameScore'
 import { NewGameButton } from './components/NewGameButton'
 import { useKeyboardControls } from './hooks/useKeyboardControls.ts'
@@ -20,12 +21,7 @@ function App() {
         <GameBoard />
       </main>
 
-      <div className="text-center absolute bottom-15 inset-x-1/4">
-        <p className="text-[#988876] text-sm font-medium max-w-lg mx-auto leading-relaxed">
-          🎯 Use arrow keys to move tiles • Merge same numbers • Reach 2048 to
-          win!
-        </p>
-      </div>
+      <GameFooter />
     </div>
   )
 }

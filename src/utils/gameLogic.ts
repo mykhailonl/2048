@@ -1,5 +1,5 @@
 import type { GameState, GameStatus } from '../contexts/GameContext.tsx'
-import type { Direction, Tile } from '../types/TileTypes.ts'
+import type { Direction, MoveResult, Tile } from '../types/TileTypes.ts'
 
 import { moveTilesInLine } from './moveUtils.ts'
 import {
@@ -13,39 +13,46 @@ import {
 export const moveTilesInDirection = (
   tiles: Tile[],
   direction: Direction
-): { tiles: Tile[]; earnedScore: number } => {
+): MoveResult => {
   const newTiles: Tile[] = []
   let totalEarnedScore = 0
+  let totalUndoes = 0
 
   if (direction === 'left' || direction === 'right') {
     for (let rowIndex = 0; rowIndex < 4; rowIndex++) {
       const rowTiles = getTilesInRow(tiles, rowIndex)
-      const { tiles: rowResult, earnedScore } = moveTilesInLine(
-        rowTiles,
-        direction,
-        rowIndex
-      )
+      const {
+        tiles: rowResult,
+        earnedScore,
+        earnedUndoes,
+      } = moveTilesInLine(rowTiles, direction, rowIndex)
 
       totalEarnedScore += earnedScore
       newTiles.push(...rowResult)
+      totalUndoes += earnedUndoes
     }
   }
 
   if (direction === 'up' || direction === 'down') {
     for (let colIndex = 0; colIndex < 4; colIndex++) {
       const colTiles = getTilesInColumn(tiles, colIndex)
-      const { tiles: colResult, earnedScore } = moveTilesInLine(
-        colTiles,
-        direction,
-        colIndex
-      )
+      const {
+        tiles: colResult,
+        earnedScore,
+        earnedUndoes,
+      } = moveTilesInLine(colTiles, direction, colIndex)
 
       totalEarnedScore += earnedScore
       newTiles.push(...colResult)
+      totalUndoes += earnedUndoes
     }
   }
 
-  return { tiles: newTiles, earnedScore: totalEarnedScore }
+  return {
+    tiles: newTiles,
+    earnedScore: totalEarnedScore,
+    earnedUndoes: totalUndoes,
+  }
 }
 
 export const tilesEqual = (tiles1: Tile[], tiles2: Tile[]): boolean => {
@@ -126,6 +133,28 @@ export const addNewTile = (tiles: Tile[]): Tile[] => {
 }
 
 export const initializeGame = (): GameState => {
+  const saved = localStorage.getItem('2048-game-state')
+
+  if (saved) {
+    try {
+      const parsedObj = JSON.parse(saved)
+
+      return {
+        tiles: parsedObj.tiles,
+        score: parsedObj.score,
+        status: parsedObj.status,
+        commandQueue: [],
+        isProcessingCommand: false,
+        undoCharges: parsedObj.undoCharges,
+        stateHistory: parsedObj.stateHistory,
+      }
+    } catch (error) {
+      console.warn('Failed to parse saved game state:', error)
+
+      localStorage.removeItem('2048-game-state')
+    }
+  }
+
   let tiles: Tile[] = []
 
   tiles = addNewTile(tiles)
@@ -137,5 +166,7 @@ export const initializeGame = (): GameState => {
     status: 'playing',
     commandQueue: [],
     isProcessingCommand: false,
+    undoCharges: 0,
+    stateHistory: [],
   }
 }
