@@ -1,13 +1,17 @@
 import {
   createContext,
-  type Dispatch,
   type PropsWithChildren,
   useEffect,
   useReducer,
 } from 'react'
 
 import { useLocalStorage } from '../hooks/useLocalStorage.ts'
-import type { Direction, Tile } from '../types/TileTypes.ts'
+import type {
+  GameAction,
+  GameContextType,
+  GameState,
+  SavedGameState,
+} from '../types/GameTypes.ts'
 import {
   addNewTile,
   getStatus,
@@ -16,33 +20,7 @@ import {
   tilesEqual,
 } from '../utils/gameLogic.ts'
 
-export type GameStatus = 'idle' | 'playing' | 'win' | 'lose'
 const MAX_HISTORY_SIZE = 15
-
-export interface GameState {
-  tiles: Tile[]
-  score: number
-  status: GameStatus
-  commandQueue: Direction[]
-  isProcessingCommand: boolean
-  undoCharges: number
-  stateHistory: Array<{ tiles: Tile[]; score: number }>
-}
-
-type GameAction =
-  | {
-      type: 'NEW_GAME'
-    }
-  | { type: 'MOVE'; direction: Direction }
-  | { type: 'QUEUE_COMMAND'; direction: Direction }
-  | { type: 'START_PROCESSING' }
-  | { type: 'FINISH_PROCESSING' }
-  | { type: 'UNDO' }
-
-interface GameContextType {
-  state: GameState
-  dispatch: Dispatch<GameAction>
-}
 
 const initialState: GameState = initializeGame()
 
@@ -133,14 +111,6 @@ const gameReducer = (state: GameState, action: GameAction): GameState => {
   }
 }
 
-type SavedGameState = {
-  tiles: Tile[]
-  score: number
-  status: GameStatus
-  undoCharges: number
-  stateHistory: Array<{ tiles: Tile[]; score: number }>
-}
-
 export const GameProvider = ({ children }: PropsWithChildren) => {
   const [state, dispatch] = useReducer(gameReducer, initialState)
   const [, saveGameState] = useLocalStorage<SavedGameState | null>(
@@ -148,6 +118,7 @@ export const GameProvider = ({ children }: PropsWithChildren) => {
     null
   )
 
+  // useEffect to control command queue
   useEffect(() => {
     if (state.commandQueue.length > 0 && !state.isProcessingCommand) {
       const nextDirection = state.commandQueue[0]
@@ -162,6 +133,7 @@ export const GameProvider = ({ children }: PropsWithChildren) => {
     }
   }, [state.commandQueue, state.isProcessingCommand])
 
+  // useEffect to rewrite game state to localStorage on change
   useEffect(() => {
     saveGameState({
       tiles: state.tiles,

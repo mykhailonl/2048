@@ -1,4 +1,4 @@
-import type { GameState, GameStatus } from '../contexts/GameContext.tsx'
+import type { GameState, GameStatus } from '../types/GameTypes.ts'
 import type { Direction, MoveResult, Tile } from '../types/TileTypes.ts'
 
 import { moveTilesInLine } from './moveUtils.ts'

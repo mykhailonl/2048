@@ -2,7 +2,7 @@ import cn from 'classnames'
 
 import { useGameActions } from '../../hooks/useGameActions.ts'
 import { useGameContext } from '../../hooks/useGameContext.ts'
-import { UndoIcon } from '../icons/UndoIcon.tsx'
+import { UndoIcon } from '../../icons/UndoIcon.tsx'
 
 export const UndoButton = () => {
   const { undo } = useGameActions()
