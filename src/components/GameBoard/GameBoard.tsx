@@ -1,12 +1,18 @@
+import { useRef } from 'react'
+
 import { useGameContext } from '../../hooks/useGameContext.ts'
+import { useSwipeControls } from '../../hooks/useSwipeControls.ts'
 import { findTileAt } from '../../utils/tileUtils.ts'
 import { GameCell } from '../GameCell'
 
 export const GameBoard = () => {
   const { state } = useGameContext()
+  const boardRef = useRef<HTMLDivElement>(null)
+
+  useSwipeControls(boardRef)
 
   return (
-    <div className="relative game-board-container">
+    <div ref={boardRef} className="relative game-board-container">
       <div className="grid grid-cols-4 gap-2 bg-board rounded-xl p-3 border border-board w-full h-full">
         {Array(16)
           .fill(null)
