@@ -5,9 +5,8 @@ import type { Direction } from '../types/TileTypes.ts'
 import { useGameContext } from './useGameContext'
 import { useModal } from './useModal.ts'
 
-// todo  I should block movements after 2048 reached
 export const useKeyboardControls = () => {
-  const { dispatch } = useGameContext()
+  const { dispatch, state } = useGameContext()
   const { modalType, closeModal } = useModal()
 
   useEffect(() => {
@@ -19,6 +18,10 @@ export const useKeyboardControls = () => {
       }
 
       if (modalType !== null) {
+        return
+      }
+
+      if (state.status === 'win' || state.status === 'lose') {
         return
       }
 

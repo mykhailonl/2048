@@ -3,7 +3,7 @@ import { GameInstructions } from '../GameInstructions'
 
 export const GameFooter = () => {
   return (
-    <footer className="absolute bottom-10 flex flex-col items-center gap-5 p-6">
+    <footer className="absolute bottom-5 flex flex-col items-center gap-5 p-6">
       <ButtonsBlock />
 
       <GameInstructions />
