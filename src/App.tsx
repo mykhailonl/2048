@@ -27,7 +27,11 @@ function App() {
     <>
       <ModalContainer />
 
-      <div className="min-h-screen bg-game flex flex-col items-center justify-center p-4 min-w-fit overflow-x-auto">
+      <main
+        className="min-h-screen bg-game flex flex-col items-center justify-center p-4 overflow-x-auto"
+        role="main"
+        aria-label="2048 Game"
+      >
         <header className="absolute inset-x-0 top-0 flex p-6 justify-between items-center flex-col gap-2 md:flex-row">
           <h1 className="text-4xl font-bold text-gray-700 md:text-6xl">2048</h1>
 
@@ -36,12 +40,12 @@ function App() {
           <NewGameButton />
         </header>
 
-        <main className="flex-shrink-0">
+        <section className="flex-shrink-0" aria-label="Game Board">
           <GameBoard />
-        </main>
+        </section>
 
         <GameFooter />
-      </div>
+      </main>
     </>
   )
 }

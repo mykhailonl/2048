@@ -24,6 +24,7 @@ export const ScoreCard = ({
         mainCard ? 'bg-[#E9E7D9]' : 'bg-game',
         styles?.containerStyles
       )}
+      aria-label={`${mainCard ? 'Current' : 'Best'} score: ${fieldValue}`}
     >
       <p className={cn('text-[#988876]', styles?.fieldNameStyles)}>
         {fieldName}

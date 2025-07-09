@@ -8,6 +8,7 @@ import {
 
 import type { ModalContextType, ModalType } from '../types/ModalTypes.ts'
 
+// eslint-disable-next-line react-refresh/only-export-components
 export const ModalContext = createContext<ModalContextType | undefined>(
   undefined
 )

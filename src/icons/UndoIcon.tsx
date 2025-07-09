@@ -1,11 +1,13 @@
-export const UndoIcon = ({ size = 24 }: { size?: number }) => (
-  <svg width={size} height={size} fill="none" viewBox="0 0 32 32">
-    <path
-      stroke="currentColor"
-      strokeLinecap="round"
-      strokeLinejoin="round"
-      strokeWidth="2.5"
-      d="M10 25h6.5a8.5 8.5 0 0 0 8.5-8.5v0A8.5 8.5 0 0 0 16.5 8H8m0 0 3.5-4M8 8l3.5 4"
-    />
+import type { IconType } from '../types/IconTypes.ts'
+
+export const UndoIcon = ({ size = 24 }: IconType) => (
+  <svg
+    width={size}
+    height={size}
+    fill="currentColor"
+    viewBox="0 -960 960 960"
+    xmlns="http://www.w3.org/2000/svg"
+  >
+    <path d="M280-200v-80h284q63 0 109.5-40T720-420q0-60-46.5-100T564-560H312l104 104-56 56-200-200 200-200 56 56-104 104h252q97 0 166.5 63T800-420q0 94-69.5 157T564-200H280Z" />
   </svg>
 )

@@ -1,10 +1,11 @@
 import React, { useState } from 'react'
 
-type TooltipProps = {
+export type TooltipProps = {
   children: React.ReactNode
   tooltip?: {
     elementName: string
-    usesLeft: number
+    usesLeft?: number
+    status?: string
     description: string
   }
 }
@@ -28,10 +29,18 @@ export const Tooltip = ({ children, tooltip }: TooltipProps) => {
                 {tooltip.elementName.toUpperCase()}
               </span>
 
-              <span className="text-gray-600">
-                {tooltip.usesLeft} {tooltip.usesLeft === 1 ? 'use' : 'uses'}{' '}
-                left
-              </span>
+              {tooltip.usesLeft && (
+                <span className="text-gray-600">
+                  {tooltip.usesLeft} {tooltip.usesLeft === 1 ? 'use' : 'uses'}{' '}
+                  left
+                </span>
+              )}
+
+              {tooltip.status && (
+                <span className="text-gray-600">
+                  Currently {tooltip.status}
+                </span>
+              )}
             </div>
 
             <p className="text-gray-500 text-xs">{tooltip.description}</p>

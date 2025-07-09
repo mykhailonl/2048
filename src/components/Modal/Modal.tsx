@@ -16,15 +16,6 @@ export const Modal = ({ type }: ModalProps) => {
     }
   }
 
-  const getSecondaryButtonText = () => {
-    switch (type) {
-      case 'confirmNewGame':
-        return 'Cancel'
-      default:
-        return 'Continue'
-    }
-  }
-
   const getContent = () => {
     switch (type) {
       case 'win':
@@ -32,7 +23,9 @@ export const Modal = ({ type }: ModalProps) => {
           title: '🎉 You Win!',
           subtitle: 'Congratulations! You reached 2048!',
           buttonText: 'New Game',
+          secondaryButtonText: 'Continue',
           buttonColor: 'bg-green-500 hover:bg-green-600',
+          ariaLabel: 'Start new game',
           showSecondButton: true,
         }
       case 'lose':
@@ -40,7 +33,9 @@ export const Modal = ({ type }: ModalProps) => {
           title: 'Game Over',
           subtitle: 'No more moves available. Try again?',
           buttonText: 'Try Again',
+          secondaryButtonText: 'Continue',
           buttonColor: 'bg-orange-500 hover:bg-orange-600',
+          ariaLabel: 'Start new game',
           showSecondButton: true,
         }
       case 'confirmNewGame':
@@ -49,7 +44,9 @@ export const Modal = ({ type }: ModalProps) => {
           subtitle:
             'Your current progress will be lost. Are you sure you want to continue?',
           buttonText: 'Start New Game',
+          secondaryButtonText: 'Cancel',
           buttonColor: 'bg-red-500 hover:bg-red-600',
+          ariaLabel: 'Start new game',
           showSecondButton: true,
         }
       default:
@@ -57,7 +54,9 @@ export const Modal = ({ type }: ModalProps) => {
           title: '',
           subtitle: '',
           buttonText: '',
+          secondaryButtonText: '',
           buttonColor: '',
+          ariaLabel: '',
           showSecondButton: false,
         }
     }
@@ -79,6 +78,7 @@ export const Modal = ({ type }: ModalProps) => {
         <button
           onClick={handlePrimaryAction}
           className={`px-6 py-3 ${content.buttonColor} text-white font-semibold rounded-xl transition-all duration-200 transform hover:scale-105 active:scale-95 shadow-lg`}
+          aria-label={content.ariaLabel}
         >
           {content.buttonText}
         </button>
@@ -87,8 +87,9 @@ export const Modal = ({ type }: ModalProps) => {
           <button
             onClick={closeModal}
             className="px-6 py-3 bg-gray-200 hover:bg-gray-300 text-gray-700 font-medium rounded-xl transition-all duration-200 transform hover:scale-105 active:scale-95"
+            aria-label={`${content.secondaryButtonText} button`}
           >
-            {getSecondaryButtonText()}
+            {content.secondaryButtonText}
           </button>
         )}
       </div>

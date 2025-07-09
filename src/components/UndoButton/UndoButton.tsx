@@ -18,6 +18,7 @@ export const UndoButton = () => {
         isDisabled ? 'bg-[#DBD5C5]' : 'bg-[#BBAB9A]'
       )}
       disabled={isDisabled}
+      aria-label={`Undo last move, ${state.undoCharges} charges remaining`}
     >
       <UndoIcon size={32} />
     </button>

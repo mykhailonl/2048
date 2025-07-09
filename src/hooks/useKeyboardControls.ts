@@ -12,6 +12,8 @@ export const useKeyboardControls = () => {
   useEffect(() => {
     const handleKeyPress = (event: KeyboardEvent) => {
       if (event.key === 'Escape' && modalType !== null) {
+        event.preventDefault()
+
         closeModal()
 
         return
@@ -48,5 +50,5 @@ export const useKeyboardControls = () => {
     window.addEventListener('keydown', handleKeyPress)
 
     return () => window.removeEventListener('keydown', handleKeyPress)
-  }, [dispatch, modalType, closeModal])
+  }, [dispatch, modalType, closeModal, state.status])
 }

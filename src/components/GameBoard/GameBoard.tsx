@@ -12,7 +12,11 @@ export const GameBoard = () => {
   useSwipeControls(boardRef)
 
   return (
-    <div ref={boardRef} className="relative game-board-container">
+    <div
+      ref={boardRef}
+      className="relative game-board-container"
+      aria-label="4x4 game grid"
+    >
       <div className="grid grid-cols-4 gap-2 bg-board rounded-xl p-3 border border-board w-full h-full">
         {Array(16)
           .fill(null)
