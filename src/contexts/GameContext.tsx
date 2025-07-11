@@ -26,7 +26,10 @@ const initialState: GameState = initializeGame()
 
 export const GameContext = createContext<GameContextType | undefined>(undefined)
 
-const gameReducer = (state: GameState, action: GameAction): GameState => {
+export const gameReducer = (
+  state: GameState,
+  action: GameAction
+): GameState => {
   switch (action.type) {
     case 'NEW_GAME':
       localStorage.removeItem('2048-game-state')
