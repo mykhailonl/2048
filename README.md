@@ -2,6 +2,11 @@
 
 A modern implementation of the classic 2048 puzzle game built with React, TypeScript, and performance optimizations.
 
+## 🌐 Live Demo
+
+**[Try the game here](https://mykhailonl.github.io/2048/)**
+
+
 ![2048 Game Screenshot](./public/screenshot.png)
 
 ## ✨ Features
