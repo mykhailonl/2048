@@ -1,5 +1,6 @@
 import cn from 'classnames'
 import { motion } from 'framer-motion'
+import React from 'react'
 
 import { useSettings } from '../../hooks/useSettings.ts'
 import type { Tile } from '../../types/TileTypes.ts'
@@ -9,7 +10,7 @@ type GameCellProps = {
   tile: Tile
 }
 
-export const GameCell = ({ tile }: GameCellProps) => {
+export const GameCell = React.memo(({ tile }: GameCellProps) => {
   const { reduceMotion } = useSettings()
 
   return (
@@ -38,4 +39,6 @@ export const GameCell = ({ tile }: GameCellProps) => {
       </div>
     </motion.div>
   )
-}
+})
+
+GameCell.displayName = 'GameCell'

@@ -1,8 +1,8 @@
-import { useRef } from 'react'
+import { useMemo, useRef } from 'react'
 
 import { useGameContext } from '../../hooks/useGameContext.ts'
 import { useSwipeControls } from '../../hooks/useSwipeControls.ts'
-import { findTileAt } from '../../utils/tileUtils.ts'
+import type { Tile } from '../../types/TileTypes.ts'
 import { GameCell } from '../GameCell'
 
 export const GameBoard = () => {
@@ -10,6 +10,17 @@ export const GameBoard = () => {
   const boardRef = useRef<HTMLDivElement>(null)
 
   useSwipeControls(boardRef)
+
+  const { tiles } = state
+
+  const tilesMap = useMemo(() => {
+    const map = new Map<string, Tile>()
+
+    tiles.forEach(tile => {
+      map.set(`${tile.x}-${tile.y}`, tile)
+    })
+    return map
+  }, [tiles])
 
   return (
     <div
@@ -31,7 +42,7 @@ export const GameBoard = () => {
           .map((_, index) => {
             const x = index % 4
             const y = Math.floor(index / 4)
-            const tile = findTileAt(state.tiles, x, y)
+            const tile = tilesMap.get(`${x}-${y}`)
 
             return tile ? (
               <GameCell key={tile.id} tile={tile} />
